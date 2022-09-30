@@ -17,7 +17,9 @@ public class ChatServer : MonoBehaviour
     byte[] buffer = new byte[1024];
     List<Socket> clients = new List<Socket>();
     string fromNetThread = "";
-
+    
+    bool bAcceptClinet;
+    
     CompositeDisposable disposables;
 
     void Awake()
@@ -67,6 +69,8 @@ public class ChatServer : MonoBehaviour
         print("pending");
 
         server.BeginAccept(AcceptCallback, null);
+
+        bAcceptClinet = true;
     }
 
     void RecvCallback(IAsyncResult result)
@@ -119,6 +123,16 @@ public class ChatServer : MonoBehaviour
             });
 
             fromNetThread = "";
+        }
+
+        if (bAcceptClinet)
+        {
+            bAcceptClinet = false;
+            MessageBroker.Default.Publish(new EVT_ReceveMsg()
+            {
+                rcvType = Type.Server,
+                sMsg = "[" + DateTime.Now + "] New Clinet Entered!"
+            });
         }
     }
 
