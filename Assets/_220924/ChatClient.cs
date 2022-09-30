@@ -9,7 +9,7 @@ using UniRx;
 public class ChatClient : MonoBehaviour
 {
     [SerializeField]
-    InputField BtnSend;
+    InputField ipSend;
     [SerializeField]
     InputField ipNickName;
 
@@ -28,7 +28,7 @@ public class ChatClient : MonoBehaviour
     {
         disposables = new CompositeDisposable();
 
-        BtnSend.OnEndEditAsObservable().Subscribe(x =>
+        ipSend.OnEndEditAsObservable().Subscribe(x =>
         {
             Debug.Log("Unirx test send");
             SendMsg();
@@ -43,7 +43,8 @@ public class ChatClient : MonoBehaviour
 
     void Update()
     {
-        BtnConnect.interactable = !bConnected;
+        BtnConnect.gameObject.SetActive(!bConnected);
+        ipSend.interactable = ipNickName.text != "";
         //메인스레드와 네트워크 스레드가 분리되어 이렇게 작성해야함
         if (fromNetThread.Length > 0)
         {
@@ -61,23 +62,24 @@ public class ChatClient : MonoBehaviour
     {
         if (!bConnected)
             return;
-        if (BtnSend.text == "")
+        if (ipSend.text == "")
             return;
         //buffer = new byte[1024];
 
         string msg = ipNickName.text == "" ? "NoName" : ipNickName.text;
-        msg += " : " + BtnSend.text;
+        msg += " : " + ipSend.text;
 
         //msg 변수를 byte 단위로 변환
         //buffer = new byte[System.Text.ASCIIEncoding.ASCII.GetBytes(msg).Length];
-        buffer = System.Text.ASCIIEncoding.ASCII.GetBytes(msg);
-
+        byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msg);
+        Array.Copy(temp, buffer, temp.Length);
 
 
         //버퍼를 보냄
-        client.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, SendCallback, null);
+        client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
 
-        
+
+        ipSend.text = "";
     }
 
     public void Connect()
@@ -113,7 +115,7 @@ public class ChatClient : MonoBehaviour
 
         if (len > 0)
         {
-            string recv = System.Text.ASCIIEncoding.ASCII.GetString(this.buffer, 0, this.buffer.Length);
+            string recv = System.Text.ASCIIEncoding.ASCII.GetString(this.buffer, 0, len);
 
             //fromNetThread라는 변수에 recv값 저장
             fromNetThread = recv;
