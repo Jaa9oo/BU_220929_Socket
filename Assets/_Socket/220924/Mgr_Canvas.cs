@@ -17,6 +17,7 @@ public class Mgr_Canvas : MonoBehaviour
     {
         disposables = new CompositeDisposable();
 
+        // 메세지 수신 시 화면에 텍스트 표현
         MessageBroker.Default.Receive<EVT_ReceveMsg>().Subscribe(evt =>
         {
             Debug.Log(evt.sMsg);

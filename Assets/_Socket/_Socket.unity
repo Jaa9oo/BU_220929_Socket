@@ -137,16 +137,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2100244404}
     m_Modifications:
+    - target: {fileID: 1828181500548532505, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5160302933287004039}
+    - target: {fileID: 1828181500548532505, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 5315433039965214727}
     - target: {fileID: 5321022594617522309, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 5315433039965214727}
-    - target: {fileID: 5321022594617522309, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
-      objectReference: {fileID: 0}
     - target: {fileID: 5321022594934952425, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
         type: 3}
       propertyPath: m_Name
@@ -262,11 +267,6 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 5160302933287004039}
-    - target: {fileID: 5321022595038799127, guid: b5c2438c9d84a324ba3f3938f8fa5fd6,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5c2438c9d84a324ba3f3938f8fa5fd6, type: 3}
 --- !u!224 &581752181 stripped
@@ -485,7 +485,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.6020826, g: 0.7735849, b: 0.7366376, a: 0}
+  m_BackGroundColor: {r: 0.6035511, g: 0.9339623, b: 0.8648064, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -751,7 +751,7 @@ PrefabInstance:
     - target: {fileID: 5160302932417901577, guid: 331de782dab58ea4892f5f89a0f9f275,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 640
+      value: 960
       objectReference: {fileID: 0}
     - target: {fileID: 5160302932417901577, guid: 331de782dab58ea4892f5f89a0f9f275,
         type: 3}
@@ -796,7 +796,7 @@ PrefabInstance:
     - target: {fileID: 5160302932417901577, guid: 331de782dab58ea4892f5f89a0f9f275,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 640
+      value: 960
       objectReference: {fileID: 0}
     - target: {fileID: 5160302932417901577, guid: 331de782dab58ea4892f5f89a0f9f275,
         type: 3}
@@ -817,6 +817,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5160302932692912117, guid: 331de782dab58ea4892f5f89a0f9f275,
+        type: 3}
+      propertyPath: m_text
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 331de782dab58ea4892f5f89a0f9f275, type: 3}

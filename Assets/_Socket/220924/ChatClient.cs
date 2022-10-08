@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using Random = UnityEngine.Random;
 
 public class ChatClient : MonoBehaviour
 {
@@ -23,6 +22,9 @@ public class ChatClient : MonoBehaviour
     byte[] buffer = new byte[1024];
 
     bool bConnected;
+
+    string host = "127.0.0.1";
+    int port = 65432;
 
     CompositeDisposable disposables;
     private void Start()
@@ -45,6 +47,7 @@ public class ChatClient : MonoBehaviour
     void Update()
     {
         BtnConnect.gameObject.SetActive(!bConnected);
+        ipNickName.interactable = bConnected;
         ipSend.interactable = ipNickName.text != "";
         //메인스레드와 네트워크 스레드가 분리되어 이렇게 작성해야함
         if (fromNetThread.Length > 0)
@@ -206,7 +209,7 @@ public class ChatClient : MonoBehaviour
         client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         //ip주소로 서버에 접속하도록 설정
-        client.BeginConnect("127.0.0.1", 10000, ConnectCallBack, client);
+        client.BeginConnect(host, port, ConnectCallBack, client);
     }
 
     void ConnectCallBack(IAsyncResult result)
