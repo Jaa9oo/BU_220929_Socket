@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using System.IO;
 
 public class ChatClient : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class ChatClient : MonoBehaviour
     InputField ipSend;
     [SerializeField]
     InputField ipNickName;
+    [SerializeField]
+    RawImage rawImg;
 
 
     [SerializeField]
@@ -25,6 +28,8 @@ public class ChatClient : MonoBehaviour
 
     string host = "127.0.0.1";
     int port = 65432;
+
+    string imgpath;
 
     CompositeDisposable disposables;
     private void Start()
@@ -42,6 +47,8 @@ public class ChatClient : MonoBehaviour
             Debug.Log("Unirx test connect");
             Connect();
         }).AddTo(disposables);
+
+        
     }
 
     void Update()
@@ -52,9 +59,15 @@ public class ChatClient : MonoBehaviour
         //메인스레드와 네트워크 스레드가 분리되어 이렇게 작성해야함
         if (fromNetThread.Length > 0)
         {
-
+            if (fromNetThread.Contains("LoadImgOk"))
+            {
+                byte[] data = LoadByteImg(imgpath);
+                client.BeginSend(data, 0, data.Length, SocketFlags.None, SendCallback, null);
+                fromNetThread = "";
+                return;
+            }
             // 메세지 ':'를 기준으로 나누어 저장하기
-            string[] div = fromNetThread.Split(':');
+            string[] div = fromNetThread.Split(';');
 
             // 메세지에서의 명령어 확인
             Parser(div);
@@ -183,19 +196,37 @@ public class ChatClient : MonoBehaviour
         if (ipSend.text == "")
             return;
         //buffer = new byte[1024];
+        string msgtotal = "";
 
-        string msg = ipNickName.text == "" ? "NoName" : ipNickName.text;
-        msg += " : " + ipSend.text;
+        var msg1 = ipNickName.text == "" ? "NoName" : ipNickName.text;
+        var msg2 = ipSend.text.Contains("LoadImg") ?  "" : ipSend.text;
+        if (msg2 != "")
+        {
+            msgtotal = msg1 + " ; " + msg2;
+            //msg 변수를 byte 단위로 변환
+            //buffer = new byte[System.Text.ASCIIEncoding.ASCII.GetBytes(msg).Length];
+            byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msgtotal);
 
-        //msg 변수를 byte 단위로 변환
-        //buffer = new byte[System.Text.ASCIIEncoding.ASCII.GetBytes(msg).Length];
-        byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msg);
-        Array.Copy(temp, buffer, temp.Length);
 
+            Array.Copy(temp, buffer, temp.Length);
+            //버퍼를 보냄
+            client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
+        }
+        else
+        {
+            msgtotal = "LoadImg";
+            byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msgtotal);
+            imgpath = ipSend.text.Split('_')[1];
+            Array.Copy(temp, buffer, temp.Length);
+            //버퍼를 보냄
+            client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
+            
 
-        //버퍼를 보냄
-        client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
-
+            ////버퍼를 보냄
+            //byte[] imgTemp = LoadByteImg(ipSend.text.Split('_')[1]);
+            //client.BeginSend(imgTemp, 0, imgTemp.Length, SocketFlags.None, SendCallback, null);
+            //Debug.Log(imgTemp.Length);
+        }
 
         ipSend.text = "";
         ipNickName.interactable = false;
@@ -239,6 +270,8 @@ public class ChatClient : MonoBehaviour
             //fromNetThread라는 변수에 recv값 저장
             fromNetThread = recv;
 
+          
+
             print(recv);
         }
 
@@ -247,6 +280,8 @@ public class ChatClient : MonoBehaviour
 
     void Parser(string[] msg)
     {
+        if (msg.Length < 2)
+            return;
         if (msg[1].Contains("create"))
         {
             if (GameObject.Find(msg[0]))
@@ -330,6 +365,43 @@ public class ChatClient : MonoBehaviour
                 name = msg[0],
             });
         }
+    }
+
+    byte[] LoadByteImg(string filepath)
+    {
+        byte[] filedata;
+
+        filedata = File.ReadAllBytes(filepath);
+
+        LoadImg(filedata);
+
+        return filedata;
+    }
+
+    string ByteArrayToString(byte[] val)
+    {
+        string b = "";
+        int len = val.Length;
+        for (int i = 0; i < len; i++)
+        {
+            if (i != 0)
+            {
+                b += ",";
+            }
+            b += val[i].ToString();
+        }
+        return b;
+    }
+
+    public Texture2D LoadImg(byte[] filedata)
+    {
+        Texture2D tex = null;
+
+        tex = new Texture2D(2, 2);
+        tex.LoadImage(filedata);
+
+        rawImg.texture = tex;
+        return tex;
     }
 
     //void Parser(string[] msg)
