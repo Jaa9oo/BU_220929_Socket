@@ -23,7 +23,7 @@ public class ChatClient : MonoBehaviour
     Socket client;
     string fromNetThread = "";
     byte[] buffer = new byte[1024];
-
+    byte[] imgdata;
     bool bConnected;
 
     string host = "127.0.0.1";
@@ -59,10 +59,11 @@ public class ChatClient : MonoBehaviour
         //메인스레드와 네트워크 스레드가 분리되어 이렇게 작성해야함
         if (fromNetThread.Length > 0)
         {
+            // 이미지 송신 준비 완료 이벤트 서버로부터 수신 확인
             if (fromNetThread.Contains("LoadImgOk"))
             {
-                byte[] data = LoadByteImg(imgpath);
-                client.BeginSend(data, 0, data.Length, SocketFlags.None, SendCallback, null);
+                // 이미지 서버 전송
+                client.BeginSend(imgdata, 0, imgdata.Length, SocketFlags.None, SendCallback, null);
                 fromNetThread = "";
                 return;
             }
@@ -198,8 +199,13 @@ public class ChatClient : MonoBehaviour
         //buffer = new byte[1024];
         string msgtotal = "";
 
+        // 아이디 없으면 노네임으로(사용x)
         var msg1 = ipNickName.text == "" ? "NoName" : ipNickName.text;
+        
+        // 내용에 이미지 전송 명령어 확인하여 구분
         var msg2 = ipSend.text.Contains("LoadImg") ?  "" : ipSend.text;
+        
+        // 이미지 명령 아닐경우
         if (msg2 != "")
         {
             msgtotal = msg1 + " ; " + msg2;
@@ -212,11 +218,18 @@ public class ChatClient : MonoBehaviour
             //버퍼를 보냄
             client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
         }
+
+        // 이미지 명령일경우
         else
         {
-            msgtotal = "LoadImg";
-            byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msgtotal);
             imgpath = ipSend.text.Split('_')[1];
+            imgdata = LoadByteImg(imgpath);
+
+            // 이미지 전송 명령어 뒤에 바이트 크기 전송
+            msgtotal = "LoadImg_"+ imgdata.Length;
+            byte[] temp = System.Text.ASCIIEncoding.ASCII.GetBytes(msgtotal);
+            
+
             Array.Copy(temp, buffer, temp.Length);
             //버퍼를 보냄
             client.BeginSend(buffer, 0, temp.Length, SocketFlags.None, SendCallback, null);
@@ -367,6 +380,12 @@ public class ChatClient : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// 이미지 변환
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <returns></returns>
     byte[] LoadByteImg(string filepath)
     {
         byte[] filedata;
@@ -393,6 +412,11 @@ public class ChatClient : MonoBehaviour
         return b;
     }
 
+    /// <summary>
+    /// 이미지 로딩
+    /// </summary>
+    /// <param name="filedata"></param>
+    /// <returns></returns>
     public Texture2D LoadImg(byte[] filedata)
     {
         Texture2D tex = null;
