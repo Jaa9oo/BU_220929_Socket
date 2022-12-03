@@ -8,6 +8,8 @@ public class Mgr_Player : MonoBehaviour
     MeshRenderer mesh;
     CompositeDisposable disposables;
 
+    public Sprite mainsp;
+
     bool bMoveFAct;
     bool bMoveUAct;
     bool bRotateAct;
@@ -59,7 +61,6 @@ public class Mgr_Player : MonoBehaviour
 
         mesh = GetComponent<MeshRenderer>();
 
-        mesh.material.color = colors[Random.Range(0, colors.Length)];
     }
 
     // Update is called once per frame

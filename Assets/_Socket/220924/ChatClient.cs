@@ -15,7 +15,8 @@ public class ChatClient : MonoBehaviour
     InputField ipNickName;
     [SerializeField]
     RawImage rawImg;
-
+    [SerializeField]
+    RenderTexture camImg;
 
     [SerializeField]
     Button BtnConnect;
@@ -222,8 +223,15 @@ public class ChatClient : MonoBehaviour
         // 이미지 명령일경우
         else
         {
-            imgpath = ipSend.text.Split('_')[1];
-            imgdata = LoadByteImg(imgpath);
+            if (ipSend.text.Contains("Now"))
+            {
+                imgdata = SaveRenderTextureAsPng(camImg);
+            }
+            else
+            {
+                imgpath = ipSend.text.Split('_')[1];
+                imgdata = LoadByteImg(imgpath);
+            }
 
             // 이미지 전송 명령어 뒤에 바이트 크기 전송
             msgtotal = "LoadImg_"+ imgdata.Length;
@@ -395,6 +403,35 @@ public class ChatClient : MonoBehaviour
         LoadImg(filedata);
 
         return filedata;
+    }
+
+    private byte[] SaveRenderTextureAsPng(RenderTexture rt)
+    {
+        if (rt == null || !rt.IsCreated()) return null;
+
+        // Allocate
+        var sRgbRenderTex = RenderTexture.GetTemporary(rt.width, rt.height, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.sRGB);
+        var tex = new Texture2D(rt.width, rt.height, TextureFormat.ARGB32, mipChain: false, linear: false);
+
+        // Linear to Gamma Conversion
+        Graphics.Blit(rt, sRgbRenderTex);
+
+        // Copy memory from RenderTexture
+        var tmp = RenderTexture.active;
+        RenderTexture.active = sRgbRenderTex;
+        tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+        tex.Apply();
+        RenderTexture.active = tmp;
+
+        // Get PNG bytes
+        var bytes = tex.EncodeToPNG();
+
+        // Destroy
+        Destroy(tex);
+        RenderTexture.ReleaseTemporary(sRgbRenderTex);
+
+        return bytes;
     }
 
     string ByteArrayToString(byte[] val)
